@@ -51,7 +51,7 @@ function [ax, ay, atheta] = compute_accel(x, y, theta, box_params)
 
         % find force and distance from centroid
         Fi = compute_spring_force(k, l0, PA_world, PB_world);
-        qi = r_c - PA_world;
+        qi = PA_world - r_c;
 
         % add to total
         sum_Fi = sum_Fi + Fi;
