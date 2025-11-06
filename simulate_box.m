@@ -4,6 +4,7 @@ function simulate_box()
     
     % get params
     box_params = get_Orion_params();
+    LW = 10; LH = 1; % from orion params, may want to add to box_params
     
     % load the system parameters into the rate function
     % via an anonymous function
@@ -18,33 +19,85 @@ function simulate_box()
     % run the integration (using ode45 cuz my integrator isn't reliable)
     [tlist, Vlist] = ode45(my_rate_func, tspan, V0);
 
-    % do the recording and animate stuff
 
-    % initialize spring plot
-    num_zigs = 6; w = 3;
-    spring_plot_struct = initialize_spring_plot(num_zigs, w);
-    box = rectangle('Position', []); % [x, y, w, h]
+    %%%%% ANIMATION %%%%%
 
-end
+    % File set up:
+    keep_vid = false; % record and store a video bool
+    if keep_vid == true
 
-%% Will generate plots of springs
+        % define location and filename where video will be stored
+        mypath1 = 'C:\Users\lodio\OneDrive - Olin College of Engineering\Desktop\';
+        mypath2 = 'Classes\Junior Fall\Orion Math\Assignment-05\MechE-Math_Assignment-05';
+        fname='attempt1.avi';
+        input_fname = [mypath1, mypath2, fname];
 
-function spring_plotting_example()
-    
-    num_zigs = 5;
-    w = .1;
-    
-    hold on;
-    spring_plot_struct = initialize_spring_plot(num_zigs,w);
-    axis equal; axis square;
-    axis([-3, 3, -3, 3]);
-    
-    for theta = linspace(0, 6*pi, 1000)
-        P1 = [0.5; 0.5];
-        P2 = 2*[cos(theta); sin(theta)];
-        update_spring_plot(spring_plot_struct, P1, P2)
-        drawnow;
+        % create a videowriter, which will write frames to the animation file
+        writerObj = VideoWriter(input_fname);
+        % must call open before writing any frames
+        open(writerObj);
     end
+    
+    % Input set up:
+    % initialize vars
+    num_zigs = 6; w = 3;
+    num_springs = length(box_params.P_world);
+    tdiff = [0; diff(tlist)];
+    x = V0(1); y = V0(2); theta = V0(3);
+
+    % initialize figure
+    clf; fig1 = figure(1); 
+    axis equal; % axis([-3, 3, -3, 3]);
+
+    % initialize plots 
+    all_spring_plots = cell(num_springs, 1);
+    all_spring_plots{1} = initialize_spring_plot(num_zigs, w); hold on;
+    for k = 2:num_springs
+        all_spring_plots{k} = initialize_spring_plot(num_zigs, w);
+    end
+    box_plot_struct = initialize_box_plot(x, y, theta, LH, LW, box_params);
+    % plot(w) % external box
+
+    % Animation:
+    % loop and plot each timestep
+    for i = 1:length(tlist)
+
+        % delay according to timestep
+        pause(tdiff(i));
+
+        % index for current state
+        x = Vlist(i,1); y = Vlist(i,2); theta = Vlist(i,3);
+
+        % update plots
+        update_box_plot(box_plot_struct, x, y, theta, LH, LW, box_params);
+        % Note: update_box_plot() updates box_params.boundary_pts and
+        % box_params.P_box
+        
+        % used updated P_box to plot springs
+        P1_list = compute_rbt(x, y, theta, box_params.P_box);
+        P2_list = compute_rbt(x, y, theta, box_params.P_world);
+        for j = 1:length(P1_list)
+            update_spring_plot(all_spring_plots{j}, P1_list(:,j), P2_list(:,j));
+        end
+        
+        % redraw
+        drawnow;
+        axis equal;
+
+        if keep_vid == true
+            % capture a frame (what is currently plotted)
+            current_frame = getframe(fig1);
+            % write the frame to the video
+            writeVideo(writerObj, current_frame);
+        end
+    end
+
+    % Clean up:
+    % close writer object if recording
+    if keep_vid == true
+        close(writerObj)
+    end
+
 end
 
 %% Updates spring plotting object so that spring is plotted with ends 
@@ -57,12 +110,16 @@ function update_spring_plot(spring_plot_struct, P1, P2)
     
     plot_pts = R*spring_plot_struct.zig_zag;
     
-    set(spring_plot_struct.line_plot,...
-        'xdata',plot_pts(1,:)+P1(1),...
-        'ydata',plot_pts(2,:)+P1(2));
-    set(spring_plot_struct.point_plot,...
-        'xdata',[P1(1),P2(1)],...
-        'ydata',[P1(2),P2(2)]);
+    % debugging
+    sps = spring_plot_struct
+    lp = spring_plot_struct.line_plot
+
+    set(spring_plot_struct.line_plot, ...
+        'xdata', plot_pts(1,:)+P1(1), ...
+        'ydata', plot_pts(2,:)+P1(2));
+    set(spring_plot_struct.point_plot, ...
+        'xdata', [P1(1), P2(1)], ...
+        'ydata', [P1(2), P2(2)]);
 
 end
 
@@ -94,6 +151,68 @@ function spring_plot_struct = initialize_spring_plot(num_zigs, w)
 
 end
 
+%% Updates box plotting object so that the box is plotted in accordance with
+% state x, y, theta
+
+function update_box_plot(box_plot_struct, x, y, theta, h, w, box_params)
+    
+    % calc & update boundary points in box frame
+    box_params.boundary_pts = [x-w, x+w, x+w, x-w, x-w; ...
+                               y-h, y-h, y+h, y+h, y-h;]/2;
+    % update P_box points (SYSTEM SPECIFIC)
+    Pbl_box = box_params.boundary_pts(:,1);
+    Pbr_box = box_params.boundary_pts(:,2);
+    box_params.P_box = [Pbl_box, Pbl_box, Pbr_box, Pbr_box];
+    
+    % convert to world frame
+    box_pts_world = compute_rbt(x, y, theta, box_params.boundary_pts);
+    
+    % update data via set()
+    set(box_plot_struct.line_plot, ...
+        'xdata', box_pts_world(1, :), ...
+        'ydata', box_pts_world(2, :));
+    set(box_plot_struct.point_plot, ...
+        'xdata', box_pts_world(1, :), ...
+        'ydata', box_pts_world(2, :));
+
+end
+
+%% Create a struct containing plotting info for the box given (x, y, z)
+
+% INPUTS:
+%   x: current x position of the box
+%   y: current y position of the box
+%   theta: current orientation of the box
+%   h: height of the box (oriented in the direction of theta)
+%   w: width of the box (oriented perpendicular to theta)
+% OUTPUTS
+%   box_plot_struct: a struct containing the line plot and the point
+%                   plot objects for the box
+
+function box_plot_struct = initialize_box_plot(x, y, theta, h, w, box_params)
+
+    % calc & update boundary points in box frame
+    box_params.boundary_pts = [x-w, x+w, x+w, x-w, x-w; ...
+                               y-h, y-h, y+h, y+h, y-h;]/2;
+    % update P_box points (SYSTEM SPECIFIC)
+    Pbl_box = box_params.boundary_pts(:,1);
+    Pbr_box = box_params.boundary_pts(:,2);
+    box_params.P_box = [Pbl_box, Pbl_box, Pbr_box, Pbr_box];
+
+    % convert to world frame
+    box_pts_world = compute_rbt(x, y, theta, box_params.boundary_pts);
+
+    % store in vars for convenience
+    x_pts = box_pts_world(1,:);
+    y_pts = box_pts_world(2,:);
+
+    % plot lines and points
+    box_plot_struct = struct();
+    box_plot_struct.line_plot = plot(x_pts, y_pts, 'k-', 'linewidth', 2);
+    box_plot_struct.point_plot = plot(x_pts, y_pts, 'ro', 'markerfacecolor', 'r', 'markersize', 7);
+
+end
+
 %% Initialize Orion Param System
 
 function box_params = get_Orion_params()
@@ -117,7 +236,7 @@ function box_params = get_Orion_params()
     P_world = [Pbl1_world, Pbl2_world, Pbr1_world, Pbr2_world];
     P_box = [Pbl_box, Pbl_box, Pbr_box, Pbr_box];
     
-    % define system parameters
+    % assign system parameters
     box_params = struct();
     box_params.m = m;
     box_params.I = Ic;

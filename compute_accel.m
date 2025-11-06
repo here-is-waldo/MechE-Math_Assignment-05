@@ -52,10 +52,12 @@ function [ax, ay, atheta] = compute_accel(x, y, theta, box_params)
         % find force and distance from centroid
         Fi = compute_spring_force(k, l0, PA_world, PB_world);
         qi = PA_world - r_c;
+        qi_x_Fi = cross([qi; 0], [Fi; 0]); 
+        % [qi; 0] give vectors a third dim (needed to take cross product)
 
         % add to total
         sum_Fi = sum_Fi + Fi;
-        sum_qi_x_Fi = sum_qi_x_Fi + cross(qi, Fi);
+        sum_qi_x_Fi = sum_qi_x_Fi + qi_x_Fi(3); % only 3rd dim has val 
     end
 
     % Linear acceleration

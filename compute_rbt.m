@@ -12,7 +12,7 @@
 
 function Plist_world = compute_rbt(x, y, theta, Plist_box)
     
-    rc_world = [x, y]; % position of centroid as vector
+    rc_world = [x; y]; % position of centroid as vector
 
     % construct CCW rotation matrix with theta
     ccw_rot_mat = [cos(theta), -sin(theta); sin(theta), cos(theta);]; 
