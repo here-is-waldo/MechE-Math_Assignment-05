@@ -109,10 +109,6 @@ function update_spring_plot(spring_plot_struct, P1, P2)
     R = [dP(1), -dP(2)/norm(dP); dP(2), dP(1)/norm(dP)];
     
     plot_pts = R*spring_plot_struct.zig_zag;
-    
-    % debugging
-    sps = spring_plot_struct
-    lp = spring_plot_struct.line_plot
 
     set(spring_plot_struct.line_plot, ...
         'xdata', plot_pts(1,:)+P1(1), ...
@@ -146,7 +142,7 @@ function spring_plot_struct = initialize_spring_plot(num_zigs, w)
     zig_zag(2,:)= zig_zag(2,:)*w;
     
     spring_plot_struct.zig_zag = zig_zag;
-    spring_plot_struct.line_plot = plot(0, 0, 'k', 'linewidth', 2);
+    spring_plot_struct.line_plot = plot(0, 0, 'k', 'linewidth', 2); hold on;
     spring_plot_struct.point_plot = plot(0, 0,'ro', 'markerfacecolor', 'r', 'markersize', 7);
 
 end

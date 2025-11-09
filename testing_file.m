@@ -17,6 +17,10 @@ tspan = [0, 5];
 
 figure();
 
+spring_plot_struct = initialize_spring_plot(num_zigs, w);
+disp(spring_plot_struct.line_plot)
+disp(spring_plot_struct.point_plot)
+
 LH = 6; LW = 2;
 x = 2; y = 3; theta = 0;
 box_plot_struct = initialize_box_plot(x, y, theta, LH, LW, box_params);
@@ -109,7 +113,7 @@ function spring_plot_struct = initialize_spring_plot(num_zigs, w)
     zig_zag(2,:)= zig_zag(2,:)*w;
     
     spring_plot_struct.zig_zag = zig_zag;
-    spring_plot_struct.line_plot = plot(0, 0, 'k', 'linewidth', 2);
+    spring_plot_struct.line_plot = plot(0, 0, 'k', 'linewidth', 2); hold on;
     spring_plot_struct.point_plot = plot(0, 0,'ro', 'markerfacecolor', 'r', 'markersize', 7);
 
 end
