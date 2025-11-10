@@ -40,7 +40,7 @@ function simulate_box()
     
     % Input set up:
     % initialize vars
-    num_zigs = 6; w = 3;
+    num_zigs = 8; w = -.1;
     num_springs = length(box_params.P_world);
     tdiff = [0; diff(tlist)];
     x = V0(1); y = V0(2); theta = V0(3);
@@ -56,7 +56,6 @@ function simulate_box()
         all_spring_plots{k} = initialize_spring_plot(num_zigs, w);
     end
     box_plot_struct = initialize_box_plot(x, y, theta, LH, LW, box_params);
-    % plot(w) % external box
 
     % Animation:
     % loop and plot each timestep
@@ -69,13 +68,13 @@ function simulate_box()
         x = Vlist(i,1); y = Vlist(i,2); theta = Vlist(i,3);
 
         % update plots
-        update_box_plot(box_plot_struct, x, y, theta, LH, LW, box_params);
+        update_box_plot(box_plot_struct, x, y, theta, box_params);
         % Note: update_box_plot() updates box_params.boundary_pts and
         % box_params.P_box
         
         % used updated P_box to plot springs
         P1_list = compute_rbt(x, y, theta, box_params.P_box);
-        P2_list = compute_rbt(x, y, theta, box_params.P_world);
+        P2_list = box_params.P_world;
         for j = 1:length(P1_list)
             update_spring_plot(all_spring_plots{j}, P1_list(:,j), P2_list(:,j));
         end
@@ -150,11 +149,11 @@ end
 %% Updates box plotting object so that the box is plotted in accordance with
 % state x, y, theta
 
-function update_box_plot(box_plot_struct, x, y, theta, h, w, box_params)
+function update_box_plot(box_plot_struct, x, y, theta, box_params)
     
     % calc & update boundary points in box frame
-    box_params.boundary_pts = [x-w, x+w, x+w, x-w, x-w; ...
-                               y-h, y-h, y+h, y+h, y-h;]/2;
+    % box_params.boundary_pts = [x-w, x+w, x+w, x-w, x-w; ...
+    %                            y-h, y-h, y+h, y+h, y-h;]/2;
     % update P_box points (SYSTEM SPECIFIC)
     Pbl_box = box_params.boundary_pts(:,1);
     Pbr_box = box_params.boundary_pts(:,2);
