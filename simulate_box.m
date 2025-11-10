@@ -1,4 +1,11 @@
 
+% okay wait change the logic
+% you have a state (start with initial)
+% then, you know the acceleration of the box
+%   wait this is calculated by the forces
+% if you update just based on that then you're just integrating
+% which is not working for us
+
 
 function simulate_box()
     
@@ -23,13 +30,13 @@ function simulate_box()
     %%%%% ANIMATION %%%%%
 
     % File set up:
-    keep_vid = false; % record and store a video bool
+    keep_vid = true; % record and store a video bool
     if keep_vid == true
 
         % define location and filename where video will be stored
         mypath1 = 'C:\Users\lodio\OneDrive - Olin College of Engineering\Desktop\';
         mypath2 = 'Classes\Junior Fall\Orion Math\Assignment-05\MechE-Math_Assignment-05';
-        fname='attempt1.avi';
+        fname='debug1.avi';
         input_fname = [mypath1, mypath2, fname];
 
         % create a videowriter, which will write frames to the animation file
@@ -91,8 +98,7 @@ function simulate_box()
         end
     end
 
-    % Clean up:
-    % close writer object if recording
+    % Clean up: close writer object if recording
     if keep_vid == true
         close(writerObj)
     end
