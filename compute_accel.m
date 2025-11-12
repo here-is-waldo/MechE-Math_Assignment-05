@@ -50,7 +50,7 @@ function [ax, ay, atheta] = compute_accel(x, y, theta, box_params)
         PA_world = compute_rbt(x, y, theta, PA_box); % now world frame
 
         % find force and distance from centroid
-        Fi = compute_spring_force(k, l0, PA_world, PB_world);
+        Fi = compute_spring_force(k, l0, PB_world, PA_world);
         qi = PA_world - r_c;
         qi_x_Fi = cross([qi; 0], [Fi; 0]); 
         % [qi; 0] give vectors a third dim (needed to take cross product)

@@ -19,13 +19,12 @@ function simulate_box()
     
     % more initial conditions
     x0 = 2; y0 = 3; theta0 = 0.331;
-    vx0 = 0.1; vy0 = 0.05; vtheta0 = 0.2;
+    vx0 = 0; vy0 = 0.0; vtheta0 = 0;
     V0 = [x0; y0; theta0; vx0; vy0; vtheta0];
-    tspan = [0, 5];
+    tspan = [0, 3];
 
     % run the integration (using ode45 cuz my integrator isn't reliable)
     [tlist, Vlist] = ode45(my_rate_func, tspan, V0);
-
 
     %%%%% ANIMATION %%%%%
 
@@ -36,7 +35,7 @@ function simulate_box()
         % define location and filename where video will be stored
         mypath1 = 'C:\Users\lodio\OneDrive - Olin College of Engineering\Desktop\';
         mypath2 = 'Classes\Junior Fall\Orion Math\Assignment-05\MechE-Math_Assignment-05';
-        fname='debug1.avi';
+        fname = 'debug2.avi';
         input_fname = [mypath1, mypath2, fname];
 
         % create a videowriter, which will write frames to the animation file
