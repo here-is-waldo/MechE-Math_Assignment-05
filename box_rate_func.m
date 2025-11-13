@@ -21,8 +21,8 @@
 function dVdt = box_rate_func(t, V, box_params)
     
     % calc second derivs based on position (x, y, theta)
-    [ax, ay, atheta] = compute_accel(V(1,:), V(2,:), V(3,:), box_params);
+    [ax, ay, atheta] = compute_accel(V(1), V(2), V(3), box_params);
     
     % store answers
-    dVdt = [V(4:6, :); ax; ay; atheta];
+    dVdt = [V(4:6); ax; ay; atheta];
 end

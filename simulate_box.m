@@ -24,12 +24,15 @@ function simulate_box()
     tspan = [0, 3];
 
     % run the integration (using ode45 cuz my integrator isn't reliable)
-    [tlist, Vlist] = ode45(my_rate_func, tspan, V0);
+    % THIS STEP IS BIG WEIRD 
+    % [tlist, Vlist] = ode45(my_rate_func, tspan, V0);
+    h_ref = 1e-6; BT_struct = get_BT("Dormand Prince");
+    [tlist, Vlist, ~, ~] = ARI_explicit_RK_fixed_step_integration(my_rate_func, tspan, V0, h_ref, BT_struct);
 
     %%%%% ANIMATION %%%%%
 
     % File set up:
-    keep_vid = true; % record and store a video bool
+    keep_vid = false; % record and store a video bool
     if keep_vid == true
 
         % define location and filename where video will be stored
