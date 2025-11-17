@@ -1,9 +1,16 @@
 
-function simulate_box()
+% okay wait change the logic
+% you have a state (start with initial)
+% then, you know the acceleration of the box
+%   wait this is calculated by the forces
+% if you update just based on that then you're just integrating
+% which is not working for us
+
+
+function simulate_new_box_sys()
     
-    % get params
-    box_params = get_Orion_params();
-    LW = 10; LH = 1; % from orion params, may want to add to box_params
+    % load params from get_params function
+    [LW, LH, box_params] = get_params();
     
     % load the system parameters into the rate function
     % via an anonymous function
@@ -13,7 +20,7 @@ function simulate_box()
     x0 = 0; y0 = 0; theta0 = 0;
     vx0 = 5; vy0 = 5; vtheta0 = pi/6;
     V0 = [x0; y0; theta0; vx0; vy0; vtheta0];
-    tspan = [0, 3];
+    tspan = [0, 0.01];
 
     % run the integration (using ode45 cuz my integrator isn't reliable)
     % THIS STEP IS BIG WEIRD 
@@ -30,7 +37,7 @@ function simulate_box()
         % define location and filename where video will be stored
         mypath1 = 'C:\Users\lodio\OneDrive - Olin College of Engineering\Desktop\';
         mypath2 = 'Classes\Junior Fall\Orion Math\Assignment-05\MechE-Math_Assignment-05';
-        fname = 'debug2.avi';
+        fname = 'new_sys1.avi';
         input_fname = [mypath1, mypath2, fname];
 
         % create a videowriter, which will write frames to the animation file
@@ -190,9 +197,7 @@ function box_plot_struct = initialize_box_plot(x, y, theta, h, w, box_params)
     box_params.boundary_pts = [x-w, x+w, x+w, x-w, x-w; ...
                                y-h, y-h, y+h, y+h, y-h;]/2;
     % update P_box points (SYSTEM SPECIFIC)
-    Pbl_box = box_params.boundary_pts(:,1);
-    Pbr_box = box_params.boundary_pts(:,2);
-    box_params.P_box = [Pbl_box, Pbl_box, Pbr_box, Pbr_box];
+    box_params.P_box = box_params.boundary_pts(:, 1:4);
 
     % convert to world frame
     box_pts_world = compute_rbt(x, y, theta, box_params.boundary_pts);
@@ -211,26 +216,25 @@ end
 
 %% Initialize Orion Param System
 
-function box_params = get_Orion_params()
+function [LW, LH, box_params] = get_params()
 
-    LW = 10; LH = 1; LG = 3;
-    m = 1; Ic = (1/12)*(LH^2 + LW^2);
-    g = 1; k = 5; k_list = [0.5*k, 0.5*k, 2*k, 5*k];
-    l0 = 1.5*LG;
+    LW = 3; LH = 2; 
+    Ic = (1/12)*(LH^2 + LW^2);
+    m = 5; g = 10;  
+    
+    k = 5; k_list = [0.9*k, 1.1*k, 1*k, 1.3*k];
+    l0_list = [3, 3, 2, 3.5];
     
     Pbl_box = [-LW; -LH]/2;
     Pbr_box = [LW; -LH]/2;
     Ptl_box = [-LW; LH]/2;
     Ptr_box = [LW; LH]/2;
+    P_box = [Pbl_box, Pbr_box, Ptr_box, Ptl_box];
     
     boundary_pts = [Pbl_box, Pbr_box, Ptr_box, Ptl_box, Pbl_box];
-    Pbl1_world = Pbl_box + [-LG; -LG];
-    Pbl2_world = Pbl_box + [LG; -LG];
-    
-    Pbr1_world = Pbr_box + [0; -l0];
-    Pbr2_world = Pbr_box + [l0; 0];
-    P_world = [Pbl1_world, Pbl2_world, Pbr1_world, Pbr2_world];
-    P_box = [Pbl_box, Pbl_box, Pbr_box, Pbr_box];
+
+    P_world = [0, 7.5, 7, 6; ...
+               0,   2, 7, 0];
     
     % assign system parameters
     box_params = struct();
@@ -238,7 +242,7 @@ function box_params = get_Orion_params()
     box_params.I = Ic;
     box_params.g = g;
     box_params.k_list = k_list;
-    box_params.l0_list = l0*ones(size(P_world,2));
+    box_params.l0_list = l0_list;
     box_params.P_world = P_world;
     box_params.P_box = P_box;
     box_params.boundary_pts = boundary_pts;
