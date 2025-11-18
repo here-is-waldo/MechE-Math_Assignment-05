@@ -17,6 +17,7 @@ function simulate_box()
 
     V_eq = find_equilibrium(box_params, V0); % Compute equilibrium state
     [A, J_approx] = linearize_system(box_params, V_eq)
+    V0 = V_eq;
 
     % run the integration (using ode45 cuz my integrator isn't reliable)
     % THIS STEP IS BIG WEIRD 
