@@ -1,12 +1,4 @@
 
-% okay wait change the logic
-% you have a state (start with initial)
-% then, you know the acceleration of the box
-%   wait this is calculated by the forces
-% if you update just based on that then you're just integrating
-% which is not working for us
-
-
 function simulate_box()
     
     % get params
@@ -18,8 +10,8 @@ function simulate_box()
     my_rate_func = @(t_in, V_in) box_rate_func(t_in, V_in, box_params);
     
     % more initial conditions
-    x0 = 2; y0 = 3; theta0 = 0.331;
-    vx0 = 0; vy0 = 0.0; vtheta0 = 0;
+    x0 = 0; y0 = 0; theta0 = 0;
+    vx0 = 5; vy0 = 5; vtheta0 = pi/6;
     V0 = [x0; y0; theta0; vx0; vy0; vtheta0];
     tspan = [0, 3];
 
@@ -29,7 +21,7 @@ function simulate_box()
     % run the integration (using ode45 cuz my integrator isn't reliable)
     % THIS STEP IS BIG WEIRD 
     % [tlist, Vlist] = ode45(my_rate_func, tspan, V0);
-    h_ref = 1e-6; BT_struct = get_BT("Dormand Prince");
+    h_ref = 0.01; BT_struct = get_BT("Dormand Prince");
     [tlist, Vlist, ~, ~] = ARI_explicit_RK_fixed_step_integration(my_rate_func, tspan, V0, h_ref, BT_struct);
 
     %%%%% ANIMATION %%%%%
@@ -226,7 +218,7 @@ function box_params = get_Orion_params()
 
     LW = 10; LH = 1; LG = 3;
     m = 1; Ic = (1/12)*(LH^2 + LW^2);
-    g = 1; k = 20; k_list = [0.5*k, 0.5*k, 2*k, 5*k];
+    g = 1; k = 5; k_list = [0.5*k, 0.5*k, 2*k, 5*k];
     l0 = 1.5*LG;
     
     Pbl_box = [-LW; -LH]/2;
