@@ -1,15 +1,8 @@
-
-% okay wait change the logic
-% you have a state (start with initial)
-% then, you know the acceleration of the box
-%   wait this is calculated by the forces
-% if you update just based on that then you're just integrating
-% which is not working for us
-
+%% Simulate Assignment 5 system with a set up of our own design
 
 function simulate_new_box_sys()
     
-    % load params from get_params function
+    % get params
     [LW, LH, box_params] = get_params();
     
     % load the system parameters into the rate function
@@ -17,10 +10,10 @@ function simulate_new_box_sys()
     my_rate_func = @(t_in, V_in) box_rate_func(t_in, V_in, box_params);
     
     % more initial conditions
-    x0 = 0; y0 = 0; theta0 = 0;
-    vx0 = 5; vy0 = 5; vtheta0 = pi/6;
+    x0 = 3.5; y0 = 3; theta0 = 0;
+    vx0 = 1; vy0 = -2; vtheta0 = 0;
     V0 = [x0; y0; theta0; vx0; vy0; vtheta0];
-    tspan = [0, 0.01];
+    tspan = [0, 15];
 
     % run the integration (using ode45 cuz my integrator isn't reliable)
     % THIS STEP IS BIG WEIRD 
@@ -31,19 +24,20 @@ function simulate_new_box_sys()
     %%%%% ANIMATION %%%%%
 
     % File set up:
-    keep_vid = false; % record and store a video bool
+    keep_vid = true; % record and store a video bool
     if keep_vid == true
 
         % define location and filename where video will be stored
         mypath1 = 'C:\Users\lodio\OneDrive - Olin College of Engineering\Desktop\';
         mypath2 = 'Classes\Junior Fall\Orion Math\Assignment-05\MechE-Math_Assignment-05';
-        fname = 'new_sys1.avi';
+        fname = 'video.avi';
         input_fname = [mypath1, mypath2, fname];
 
         % create a videowriter, which will write frames to the animation file
         writerObj = VideoWriter(input_fname);
         % must call open before writing any frames
         open(writerObj);
+        disp("vid recording")
     end
     
     % Input set up:
@@ -55,7 +49,7 @@ function simulate_new_box_sys()
 
     % initialize figure
     clf; fig1 = figure(1); 
-    axis equal; % axis([-3, 3, -3, 3]);
+    axis equal; 
 
     % initialize plots 
     all_spring_plots = cell(num_springs, 1);
@@ -65,6 +59,7 @@ function simulate_new_box_sys()
     end
     box_plot_struct = initialize_box_plot(x, y, theta, LH, LW, box_params);
 
+    axis([-3, 15, -3, 12]);
     % Animation:
     % loop and plot each timestep
     for i = 1:length(tlist)
@@ -222,8 +217,10 @@ function [LW, LH, box_params] = get_params()
     Ic = (1/12)*(LH^2 + LW^2);
     m = 5; g = 10;  
     
-    k = 5; k_list = [0.9*k, 1.1*k, 1*k, 1.3*k];
-    l0_list = [3, 3, 2, 3.5];
+    % k = 5; k_list = [0.9*k, 1.1*k, 1*k, 1.3*k];
+    k_list = [2, 2, 6, 6];
+    % l0_list = [3, 3, 2, 3.5];
+    l0_list = [2, 2, 2, 1];
     
     Pbl_box = [-LW; -LH]/2;
     Pbr_box = [LW; -LH]/2;
@@ -233,8 +230,9 @@ function [LW, LH, box_params] = get_params()
     
     boundary_pts = [Pbl_box, Pbr_box, Ptr_box, Ptl_box, Pbl_box];
 
-    P_world = [0, 7.5, 7, 6; ...
-               0,   2, 7, 0];
+    % going counter clockwise around the box
+    P_world = [0, 7.5, 7, 0; ...
+               0,   2, 7, 6];
     
     % assign system parameters
     box_params = struct();
