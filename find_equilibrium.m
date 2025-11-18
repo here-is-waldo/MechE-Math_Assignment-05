@@ -22,7 +22,8 @@ function V_eq = find_equilibrium(box_params, V_guess)
     
     rate_func = @(V) box_rate_func(0, V, box_params);
     fprintf('Finding equilibrium configuration...\n');
-    V_eq = f_multi_newton(rate_func, V_guess);
+    solver_params = struct();
+    V_eq = multi_newton(rate_func, V_guess, solver_params);
     fprintf('Equilibrium state found:\n');
     disp(V_eq.');
     fprintf('Verifying equilibrium with ODE45...\n');

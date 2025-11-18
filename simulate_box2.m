@@ -23,7 +23,7 @@ function simulate_box()
     V0 = [x0; y0; theta0; vx0; vy0; vtheta0];
     tspan = [0, 3];
 
-    V_eq = find_equilibrium(box_params, V0); % Compute equilibrium state
+    V_eq = find_equilibrium(box_params); % Compute equilibrium state
     [A, J_approx] = linearize_system(box_params, V_eq)
 
     % run the integration (using ode45 cuz my integrator isn't reliable)
