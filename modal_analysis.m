@@ -1,7 +1,7 @@
 function [U_mode, omega_n] = modal_analysis(Q, Veq, box_params)
     [U_mode, omega_n] = eig(Q)
     omega_n = sqrt(omega_n);
-    
+    return;
     my_rate_func = @(t,V) box_rate_func(t,V,box_params);
     
     %your_integrator(my_rate_func,tspan,V0,...);

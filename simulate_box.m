@@ -20,7 +20,6 @@ function simulate_box()
     Q = -A(4:6, 1:3);
     [U_mode, omega_n] = modal_analysis(Q, V_eq, box_params);
     V0 = V_eq;
-    clf;
 %% 
 
     % run the integration (using ode45 cuz my integrator isn't reliable)
@@ -29,6 +28,14 @@ function simulate_box()
     h_ref = 0.01; BT_struct = get_BT("Dormand Prince");
     [tlist, Vlist, ~, ~] = ARI_explicit_RK_fixed_step_integration(my_rate_func, tspan, V0, h_ref, BT_struct);
 
+    % plotting nonlinear mode shape freq
+    epsilon = 1;
+    V0 = V_eq + epsilon*[U_mode(:,1);0;0;0];
+    omega_i = omega_n(1,1);
+    tspan = [0 6*pi/omega_i];
+
+    opts = odeset('RelTol',1e-8,'AbsTol',1e-9);
+    [tlist,Vlist] = ode45(my_rate_func, tspan, V0, opts);
 
     %%%%% ANIMATION %%%%%
 
@@ -57,10 +64,28 @@ function simulate_box()
 
     % initialize figure
     fig1 = figure('Name','Box Animation','NumberTitle','off');
-    clf(fig1);                  % clear but do NOT steal figures created elsewhere
-    ax = axes('Parent', fig1);  % create dedicated axes
-    axis(ax, 'equal');
+    clf(fig1);
+    ax = axes('Parent', fig1);
     hold(ax, 'on');
+    axis(ax, 'equal');
+    
+    % ---- FIX: precompute and lock axis limits ----
+    % Compute limits large enough to contain entire motion
+    all_x = Vlist(:,1);
+    all_y = Vlist(:,2);
+    
+    % Add padding so springs/box never hit the frame edges
+    pad = max([LW, LH]) * 0.5;
+    
+    xmin = min(all_x) - pad;
+    xmax = max(all_x) + pad;
+    ymin = min(all_y) - pad;
+    ymax = max(all_y) + pad;
+    
+    xlim(ax, [xmin xmax]);
+    ylim(ax, [ymin ymax]);
+    
+    axis(ax,'manual');   % <--- critical: prevents MATLAB from changing limits
 
     % initialize plots 
     all_spring_plots = cell(num_springs, 1);
@@ -73,7 +98,6 @@ function simulate_box()
     % Animation:
     % loop and plot each timestep
     for i = 1:length(tlist)
-        disp(i)
         % delay according to timestep
         pause(tdiff(i));
 
