@@ -33,13 +33,10 @@ function [U_mode, omega_n] = modal_analysis(Q, Veq, box_params)
         plot(tlist_nonlinear, Vlist_nonlinear(:,1)-Veq(1),'r--','linewidth',2)
         plot(tlist_nonlinear, Vlist_nonlinear(:,2)-Veq(2),'b--','linewidth',2)
         plot(tlist_nonlinear, Vlist_nonlinear(:,3)-Veq(3),'g--','linewidth',2)
-        legend("X (Linear)", "Y (Linear)", "theta (Linear)", "X (Nonlinear)", "Y (Nonlinear)", "theta (Nonlinear)")
-        xlabel("time")
-        ylabel("Displacement from equilibrium")
 
         subplot(2,1,2)
         hold on
-        title("Large Perturbation (e = 1)")
+        title("Large Perturbation (e = 0.67)")
 
         epsilon = 1;
         V0 = Veq + epsilon*[U_mode(:,i);0;0;0];
@@ -62,8 +59,5 @@ function [U_mode, omega_n] = modal_analysis(Q, Veq, box_params)
         plot(tlist_nonlinear, Vlist_nonlinear(:,1)-Veq(1),'r--','linewidth',2)
         plot(tlist_nonlinear, Vlist_nonlinear(:,2)-Veq(2),'b--','linewidth',2)
         plot(tlist_nonlinear, Vlist_nonlinear(:,3)-Veq(3),'g--','linewidth',2)
-
-        xlabel("time")
-        ylabel("Displacement from equilibrium")
     end
 end

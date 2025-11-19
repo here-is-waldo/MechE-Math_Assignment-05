@@ -15,11 +15,12 @@ function simulate_box()
     V0 = [x0; y0; theta0; vx0; vy0; vtheta0];
     tspan = [0, 3];
 
-    V_eq = find_equilibrium(box_params, V0) % Compute equilibrium state
+    V_eq = find_equilibrium(box_params, V0); % Compute equilibrium state
     [A, J_approx] = linearize_system(box_params, V_eq);
     Q = -A(4:6, 1:3);
     [U_mode, omega_n] = modal_analysis(Q, V_eq, box_params);
     V0 = V_eq;
+    clf;
 %% 
 
     % run the integration (using ode45 cuz my integrator isn't reliable)
@@ -27,6 +28,7 @@ function simulate_box()
     % [tlist, Vlist] = ode45(my_rate_func, tspan, V0);
     h_ref = 0.01; BT_struct = get_BT("Dormand Prince");
     [tlist, Vlist, ~, ~] = ARI_explicit_RK_fixed_step_integration(my_rate_func, tspan, V0, h_ref, BT_struct);
+
 
     %%%%% ANIMATION %%%%%
 
