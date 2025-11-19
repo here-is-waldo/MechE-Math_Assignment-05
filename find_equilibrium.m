@@ -33,7 +33,8 @@ function V_eq = find_equilibrium(box_params, V_guess)
     opts = odeset('RelTol',1e-8,'AbsTol',1e-9);
     [t_list, V_list] = ode45(my_rate_func, tspan, V_eq, opts);
 
-    figure;
+
+    figure(1);
     plot(t_list, V_list(:,1)-V_eq(1), 'r', 'LineWidth',1.2);
     hold on;
     plot(t_list, V_list(:,2)-V_eq(2), 'b', 'LineWidth',1.2);
@@ -43,6 +44,7 @@ function V_eq = find_equilibrium(box_params, V_guess)
     legend('\Delta x','\Delta y','\Delta \theta');
     title('Equilibrium Verification (ODE45)');
     grid on;
+    
 
     fprintf('If the system remains stationary (flat lines), equilibrium is valid.\n');
 end

@@ -15,7 +15,7 @@ function [A, J_approx] = linearize_system(box_params, V_eq)
     [t_lin, V_lin] = ode45(linear_rate, tspan, V0, opts);
     [t_nl,  V_nl]  = ode45(nonlinear_rate, tspan, V0, opts);
 
-    figure; hold on;
+    figure(); hold on;
     plot(t_nl, V_nl(:,1)-V_eq(1), 'r', 'LineWidth',1.2, ...
          'DisplayName','Nonlinear ∆x');
     plot(t_lin, V_lin(:,1)-V_eq(1), 'b--', 'LineWidth',1.2, ...

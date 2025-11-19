@@ -1,0 +1,61 @@
+function [U_mode, omega_n] = modal_analysis(Q, Veq, box_params)
+    [U_mode, omega_n] = eig(Q)
+    omega_n = sqrt(omega_n);
+    
+    my_rate_func = @(t,V) box_rate_func(t,V,box_params);
+    
+    %your_integrator(my_rate_func,tspan,V0,...);
+    
+    for i = 1:3
+        figure(7+i); 
+        subplot(2,1,1)
+        hold on
+        %small number
+        epsilon = 1e-3;
+        V0 = Veq + epsilon*[U_mode(:,i);0;0;0];
+        
+        omega_i = omega_n(i,i);
+        tspan = [0 6*pi/omega_i];
+        %run the integration of nonlinear system
+
+        opts = odeset('RelTol',1e-8,'AbsTol',1e-9);
+        [tlist_nonlinear,Vlist_nonlinear] = ode45(my_rate_func, tspan, V0, opts);
+
+        
+
+        Vx_linear = epsilon*cos(tlist_nonlinear*omega_i)*U_mode(1,i);
+        Vy_linear = epsilon*cos(tlist_nonlinear*omega_i)*U_mode(2,i);
+        Vtheta_linear = epsilon*cos(tlist_nonlinear*omega_i)*U_mode(3,i);
+        plot(tlist_nonlinear, Vx_linear,'k','linewidth',2)
+        plot(tlist_nonlinear, Vy_linear,'k','linewidth',2)
+        plot(tlist_nonlinear, Vtheta_linear,'k','linewidth',2)
+        plot(tlist_nonlinear, Vlist_nonlinear(:,1)-Veq(1),'r--','linewidth',2)
+        plot(tlist_nonlinear, Vlist_nonlinear(:,2)-Veq(2),'b--','linewidth',2)
+        plot(tlist_nonlinear, Vlist_nonlinear(:,3)-Veq(3),'g--','linewidth',2)
+
+        subplot(2,1,2)
+        hold on
+
+        epsilon = 1;
+        V0 = Veq + epsilon*[U_mode(:,i);0;0;0];
+        
+        omega_i = omega_n(i,i);
+        tspan = [0 6*pi/omega_i];
+        %run the integration of nonlinear system
+
+        opts = odeset('RelTol',1e-8,'AbsTol',1e-9);
+        [tlist_nonlinear,Vlist_nonlinear] = ode45(my_rate_func, tspan, V0, opts);
+
+        
+
+        Vx_linear = epsilon*cos(tlist_nonlinear*omega_i)*U_mode(1,i);
+        Vy_linear = epsilon*cos(tlist_nonlinear*omega_i)*U_mode(2,i);
+        Vtheta_linear = epsilon*cos(tlist_nonlinear*omega_i)*U_mode(3,i);
+        plot(tlist_nonlinear, Vx_linear,'k','linewidth',2)
+        plot(tlist_nonlinear, Vy_linear,'k','linewidth',2)
+        plot(tlist_nonlinear, Vtheta_linear,'k','linewidth',2)
+        plot(tlist_nonlinear, Vlist_nonlinear(:,1)-Veq(1),'r--','linewidth',2)
+        plot(tlist_nonlinear, Vlist_nonlinear(:,2)-Veq(2),'b--','linewidth',2)
+        plot(tlist_nonlinear, Vlist_nonlinear(:,3)-Veq(3),'g--','linewidth',2)
+    end
+end
